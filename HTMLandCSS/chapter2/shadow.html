@@ -1,0 +1,39 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Box Shadow</title>
+    <style>
+        p {
+           width: 100px;
+           height: 100px;
+           background-color: #dfdfd9;
+           margin: 20px;
+           display: inline-block;
+        }
+        p.one {
+            box-shadow: 0px 0px 0px lightslategray;
+        }
+        p.two {
+            box-shadow: 5px 5px 5px lightslategray;
+        }
+        p.three {
+            box-shadow: 5px 5px 5px 5px lightslategray;
+        }
+        p.four {
+            box-shadow: 0px 0px 10px lightslategray;
+        }
+        p.five {
+            box-shadow: inset 0px 0px 10px lightslategray ;
+        }
+    </style>
+</head>
+<body>
+    <p class="one"></p>
+    <p class="two"></p>
+    <p class="three"></p>
+    <br />
+    <p class="four"></p>
+    <p class="five"></p>
+</body>
+</html>
