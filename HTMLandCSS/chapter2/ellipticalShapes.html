@@ -3,29 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Box Shadow</title>
+    <title>Elliptical Shapes</title>
     <style>
         p {
+            border: 5px solid blue;
+            padding: 10px;
             width: 100px;
             height: 100px;
-            background-color: #e1ddda;
-            margin: 20px;
             display: inline-block;
+            margin: 20px;
         }
         p.one {
-            box-shadow: -5px -5px -5px #777777;
+            border-top-left-radius: 80px 50px;
         }
         p.two {
-            box-shadow: 5px 5px 5px #777777;
+            border-radius: 1em 4em 1em 4em /5em 1em 4em 1em;
         }
+
         p.three {
-            box-shadow: 5px 5px 5px 5px #777777;
-        }
-        p.four {
-            box-shadow: 0 0 10px #777777;
-        }
-        p.five {
-            box-shadow: inset 0 0 10px #777777;
+            padding: 0px;
+            border-radius: 100px;
         }
     </style>
 </head>
@@ -33,8 +30,5 @@
     <p class="one"></p>
     <p class="two"></p>
     <p class="three"></p>
-    <br />
-    <p class="four"></p>
-    <p class="five"></p>
 </body>
 </html>
