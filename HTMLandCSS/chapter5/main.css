@@ -18,8 +18,10 @@ header, section, footer, aside, nav, article, figure, figcaption {
             background-color: #ffffff;
         }
         header {
+            position: sticky
             height: 160px;
             background-image: url(images/header.jpg);
+            
         }
         h1 {
             text-indent: -9999px;
