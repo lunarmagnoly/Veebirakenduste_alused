@@ -16,14 +16,23 @@ export function HangmanWord({guessedLetters , wordToGuess, reveal = false }:
             style={{ 
                 display: "flex", 
                 gap: ".25em", 
-                fontSize: "6rem", 
+                fontSize: "clamp(24px, 5vw, 60px)", 
                 fontWeight: "bold", 
                 textTransform: "uppercase",
                 fontFamily: "monospace",
                 }}
             >
                 {wordToGuess.split("").map((letter, index) => (
-                  <span style={{ borderBottom: ".1em solid black", height: "3rem" }} key={index}>
+                  <span
+                    key={index}
+                    style={{
+                        borderBottom: "clamp(2px, 0.5vw, 4px) solid black",
+                        width: "clamp(20px, 5vw, 60px)",
+                        display: "inline-flex",
+                        justifyContent: "center",
+                        alignItems: "flex-end"
+                    }}
+                    >
                     <span
                       style={{
                         visibility: guessedLetters.includes(letter) || reveal 
@@ -31,7 +40,8 @@ export function HangmanWord({guessedLetters , wordToGuess, reveal = false }:
                             : "hidden",
                         color: !guessedLetters.includes(letter) && reveal 
                             ? "red" 
-                            : "black"
+                            : "black",
+                        marginBottom: "6px"    
                       }}                    
                     >
                         {letter}

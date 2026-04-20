@@ -1,117 +1,289 @@
 import { useCallback, useEffect, useState } from 'react'
-import words from "./wordList.json"
 import { HangmanDrawing } from './HangmanDrawing'
 import { HangmanWord } from './HangmanWord'
 import { Keyboard } from './Keyboard'
 import './App.css'
+import easyWords from "./easy_word_List.json"
+import mediumWords from "./medium_word_List.json"
+import hardWords from "./hard_word_List.json"
 
-//see funktsioon tagastab suvalise sõna wordList.json failist
-function getWord() {
-  return words[Math.floor(Math.random() * words.length)]
+// Function to get a random word based on difficulty
+function getWord(difficulty: string) {
+  let wordList = easyWords
+
+  if (difficulty === "medium") wordList = mediumWords
+  if (difficulty === "hard") wordList = hardWords
+
+  return wordList[Math.floor(Math.random() * wordList.length)]
 }
 
 function App() {
-
-  //sõnade salvestamine array sisse on kõige lihtsam
-  //Stringi kasutan kuna viitan, et on tegemist ainult stringiga
-  const [wordToGuess, setWordToGuess] = useState(getWord)
-  //string on loetelu e massiivis
+  // Stores the word to guess
+  const [wordToGuess, setWordToGuess] = useState("")
+  
+  // Stores all guessed letters
   const [guessedLetters, setGuessedLetters] = useState<string[]>([])
 
-  //filtreerib välja tähti, mis ei ole arvtavas sõnas
+  // Player info
+  const [playerName, setPlayerName] = useState("")
+  const [difficulty, setDifficulty] = useState("easy")
+  const [gameStarted, setGameStarted] = useState(false)
+
+  // Letters that are NOT in the word
   const inCorrectLetters = guessedLetters.filter(
     letter => !wordToGuess.includes(letter)
   )
 
-  //kui oled pakkunud valesid t'hti kuus korda, siis kaotad
+  // Lose condition (6 wrong guesses)
   const isLoser = inCorrectLetters.length >= 6
 
-  //v]idu sildi kuvamine
-  //kasutage spliti ja every
-  const isWinner = wordToGuess
-      .split("")
-      .every(letter => guessedLetters.includes(letter))
+  // Win condition (all letters guessed)
+  const isWinner =
+    wordToGuess.length > 0 &&
+    wordToGuess.split("").every(letter => guessedLetters.includes(letter))
 
-      //see j'tab meelde funktsiooni
-      //et ei loodaks seda uuesti igas ts[klis
-  const addGuessedLetter = useCallback
-      ((letter: string) => {
-        //isLoser ja isWinner ja vastavalt sellele annab tulemuse
-        if (guessedLetters.includes(letter) || isLoser || isWinner)
-          return
-        //funktsioon on edasi antud setter, v]ta praegune olek ja returni uus versioon v]i situatsion
-        //funktsionaalne update, v'listab bugisid uuenduse k'igus
-        setGuessedLetters(currentLetters => [...currentLetters, letter])
-        },
-        [guessedLetters, isLoser, isWinner]
-      )
+  // Function to add guessed letter
+  const addGuessedLetter = useCallback(
+    (letter: string) => {
+      // Do nothing if already guessed or game finished
+      if (guessedLetters.includes(letter) || isLoser || isWinner) return
 
-      useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-          const key = e.key
-          if (!key.match(/^[a-z]$/)) return
+      setGuessedLetters(currentLetters => [...currentLetters, letter])
+    },
+    [guessedLetters, isLoser, isWinner]
+  )
 
-          e.preventDefault()
-          addGuessedLetter(key)
-        }
+  // Listen for keyboard input (letters)
+  useEffect(() => {
+    if (!gameStarted) return
 
-        document.addEventListener("keypress", handler)
+    const handler = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase()
 
-        return () => {
-          document.removeEventListener("keypress", handler)
-        }
-      }, [guessedLetters])
+      // Only allow a-z letters
+      if (!key.match(/^[a-z]$/)) return
 
-      useEffect(() => {
-        const handler = (e: KeyboardEvent) => {
-          const key = e.key
-          if (key !== "Enter") return
+      e.preventDefault()
+      addGuessedLetter(key)
+    }
 
-          e.preventDefault()
-          setGuessedLetters([])
-          setWordToGuess(getWord())
-        }
+    document.addEventListener("keydown", handler)
 
-        document.addEventListener("keypress", handler)
+    return () => {
+      document.removeEventListener("keydown", handler)
+    }
+  }, [addGuessedLetter, gameStarted])
 
-        return () => {
-          document.removeEventListener("keypress", handler)
-        }
-      }, [])
+  // Restart game with Enter key
+  useEffect(() => {
+    if (!gameStarted) return
+
+    const handler = (e: KeyboardEvent) => {
+      const key = e.key
+      if (key !== "Enter") return
+
+      e.preventDefault()
+      setGuessedLetters([])
+      setWordToGuess(getWord(difficulty))
+    }
+
+    document.addEventListener("keydown", handler)
+
+    return () => {
+      document.removeEventListener("keydown", handler)
+    }
+  }, [gameStarted, difficulty])
 
   return (
-    <div
-      style={{
-        maxWidth: "800px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "2rem",
-        margin: "0 auto",
-        alignItems: "center"
-      }}
+  <div
+  style={{
+  width: "100%",
+  maxWidth: "1000px",
+  minHeight: "100vh",
+  display: "flex",
+  flexDirection: "column",
+  gap: "1rem",
+  margin: "0 auto",
+  padding: "16px",
+  boxSizing: "border-box",
+  alignItems: "center",
+  justifyContent: "center",
+  paddingTop: gameStarted ? "0" : "40px",
+  backgroundImage: "linear-gradient(rgba(255,255,255,0.7), rgba(255,255,255,0.7)), url('/images/tree-texture-mirror.png'), url('/images/tree-texture.png')",
+  backgroundSize: "100% 100%, 50% 100%, 50% 100%",
+  backgroundPosition: "center center, left top, right top",
+  backgroundRepeat: "no-repeat, no-repeat, no-repeat",
+}}
+    >
+    {!gameStarted && <h1 style={{ marginBottom: "50px", alignItems: "center", fontSize: "48px"}}>Hangman game</h1>}  
+    {/* Hangman drawing (updates dynamically based on mistakes) */}
+    <HangmanDrawing numberOfGuesses={gameStarted ? inCorrectLetters.length : 0} />
+    
+    {/* Start screen (shown before the game starts) */}
+    {!gameStarted && (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: "1rem",
+          width: "300px"          
+        }}
       >
-        <div style={{ fontSize: "2rem", textAlign: "center"}}>
-            {isWinner && "Winner! - Refresh to try again"}
-            {isLoser && "Nice try! - Refresh to try again"}
+        
+        {/* Player name input */}
+        <input
+          style={{marginTop: "40px"}}
+          type="text"
+          placeholder="Enter your name (3 to 12 charasters)"
+          value={playerName}
+          onChange={(e) => {
+            const value = e.target.value
+
+            if (/^[a-zA-Z\s]*$/.test(value)) {
+              setPlayerName(value.slice(0, 12))
+            }
+          }}
+        />
+
+        {/* Difficulty selection */}
+        <select
+          
+          value={difficulty}
+          onChange={(e) => setDifficulty(e.target.value)}
+        >
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        {/* Start game button */}
+        <button
+          
+          onClick={() => {
+            const cleanName = playerName.trim().replace(/\s+/g, " ")
+            if (cleanName.length < 3) return
+
+            setPlayerName(cleanName)
+            setGuessedLetters([])
+            setWordToGuess(getWord(difficulty))
+            setGameStarted(true)
+          }}
+        >
+          Start game
+        </button>
+      </div>
+    )}
+
+    {/* Game screen (shown after start) */}
+    {gameStarted && (
+      <>
+        {/* Player info + navigation */}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <h3 style={{ marginBottom: "10px" }}>
+            Player: {playerName} | Difficulty: {difficulty}
+          </h3>
+          <p style={{ marginBottom: "20px" }}>Press ENTER to restart</p>
+
+          
         </div>
 
-        {/* kutsume esile erinevad komponendid */}
-        <HangmanDrawing numberOfGuesses={inCorrectLetters.length} />
-        <HangmanWord reveal={isLoser} guessedLetters={guessedLetters} wordToGuess={wordToGuess} />
+        {/* Word display (updates dynamically) */}
+        <HangmanWord
+          reveal={isLoser}
+          guessedLetters={guessedLetters}
+          wordToGuess={wordToGuess}
+        />
 
-        <div style={{ alignSelf: "stretch"}}>
-            <Keyboard 
-              disabled={isWinner || isLoser}
-              activeLetters={guessedLetters.filter(letter =>
+        {/* Keyboard (interactive buttons) */}
+        <div style={{ display: "flex", justifyContent: "center"  }}>
+          <Keyboard
+            disabled={isWinner || isLoser}
+            activeLetters={guessedLetters.filter(letter =>
               wordToGuess.includes(letter)
             )}
-              inactiveLetters={inCorrectLetters}
-              addGuessedLetter={addGuessedLetter}
-            />
+            inactiveLetters={inCorrectLetters}
+            addGuessedLetter={addGuessedLetter}
+          />
         </div>
+      </>
+    )}
 
-    </div>
-  )
-}
+    {/* Modal popup (appears when game ends) */}
+    {(isWinner || isLoser) && (
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          background: "rgba(0, 0, 0, 0.4)",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          zIndex: 1000
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            padding: "2rem",
+            borderRadius: "12px",
+            textAlign: "center",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+            minWidth: "280px"
+          }}
+        >
+          {/* Result text */}
+          <h2 style={{ margin: 0 }}>
+            {isWinner && `Winner, ${playerName}!`}
+            {isLoser && `Nice try, ${playerName}!`}
+          </h2>
+
+          {/* Action buttons */}
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              justifyContent: "center",
+              flexWrap: "wrap"
+            }}
+          >
+            {/* Restart game */}
+            <button
+              onClick={() => {
+                setGuessedLetters([])
+                setWordToGuess(getWord(difficulty))
+              }}
+            >
+              Play again
+            </button>
+
+            {/* Back to start screen */}
+            <button
+              onClick={() => {
+                setGuessedLetters([])
+                setGameStarted(false)
+                setPlayerName("")
+              }}
+            >
+              Back to start
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
 export default App
