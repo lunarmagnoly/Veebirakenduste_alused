@@ -19,4 +19,5 @@ export type UpdatedProject = {
   description: string;
   imageUrl: string;
   deadline: string;
+  priority: Priority;
 };

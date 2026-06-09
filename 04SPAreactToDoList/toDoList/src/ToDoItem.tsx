@@ -26,6 +26,7 @@ const ToDoItem: React.FC<Props> = ({
   const [editedDescription, setEditedDescription] = useState(toDo.description);
   const [editedImageUrl, setEditedImageUrl] = useState(toDo.imageUrl);
   const [editedDeadline, setEditedDeadline] = useState(toDo.deadline);
+  const [editedPriority, setEditedPriority] = useState(toDo.priority);
 
   // Kontrollime, kas projekti tähtaeg on möödas
   // Valmis projekt ei ole enam hilinenud
@@ -77,7 +78,8 @@ const ToDoItem: React.FC<Props> = ({
       text: editedText.trim(),
       description: editedDescription.trim(),
       imageUrl: editedImageUrl.trim(),
-      deadline: editedDeadline
+      deadline: editedDeadline,
+      priority: editedPriority
     });
 
     setIsEditing(false);
@@ -117,6 +119,32 @@ const ToDoItem: React.FC<Props> = ({
             value={editedDeadline}
             onChange={(e) => setEditedDeadline(e.target.value)}
           />
+
+          <div className="priority-selector">
+            <button
+                type="button"
+                className={editedPriority === "low" ? "active" : ""}
+                onClick={() => setEditedPriority("low")}
+            >
+                🟢 Low
+            </button>
+
+            <button
+                type="button"
+                className={editedPriority === "medium" ? "active" : ""}
+                onClick={() => setEditedPriority("medium")}
+            >
+                🟡 Medium
+            </button>
+
+            <button
+                type="button"
+                className={editedPriority === "high" ? "active" : ""}
+                onClick={() => setEditedPriority("high")}
+            >
+                🔴 High
+            </button>
+          </div>
         </div>
       ) : (
         <>
